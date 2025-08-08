@@ -127,3 +127,14 @@ python main.py --model pidinet_converted --config carv4 --sa --dil -j 4 --gpu 0 
 The results of our model look like this. The top image is the messy office table, the bottom image is the peaceful Saimaa lake in southeast of Finland.
 </div>
 
+## Generating inverted edge maps
+```bash
+python main.py --model pidinet_converted --config carv4 --sa --dil -j 4 --gpu 0 --savedir ./flickr/pidinet --datadir ./dir/flickr/ --dataset Custom --evaluate ./trained_models/table5_pidinet.pth --evaluate-converted
+```
+
+The structure of the .lst file should be like this:
+```
+path/to/image1.jpg
+path/to/image2.jpg
+...
+```
