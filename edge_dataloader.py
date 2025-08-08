@@ -281,13 +281,17 @@ class Custom_Loader(data.Dataset):
         self.transform = transforms.Compose([
             transforms.ToTensor(),
             normalize])
-        self.imgList = fold_files(os.path.join(root))
+        
+        self.filelist = os.path.join(self.root, 'train.lst')
+
+        with open(self.filelist, 'r') as f:
+            self.imgList = f.read().splitlines()
 
     def __len__(self):
         return len(self.imgList)
     
     def __getitem__(self, index):
-
+        class_image = self.imgList[index].split("/")[-2]
         with open(os.path.join(self.root, self.imgList[index]), 'rb') as f:
             img = Image.open(f)
             img = img.convert('RGB')
@@ -295,4 +299,4 @@ class Custom_Loader(data.Dataset):
 
         filename = Path(self.imgList[index]).stem
 
-        return img, filename
+        return img, filename , class_image

@@ -337,24 +337,29 @@ def test(test_loader, model, epoch, running_file, args):
     if not os.path.exists(mat_dir):
         os.makedirs(mat_dir)
 
-    for idx, (image, img_name) in enumerate(test_loader):
-
+    for idx, (image, img_name, class_image) in enumerate(test_loader):
         img_name = img_name[0]
         with torch.no_grad():
             image = image.cuda() if args.use_cuda else image
             _, _, H, W = image.shape
             results = model(image)
+            results = torchvision.transforms.functional.invert(results[-1]) # invertir los colores
             result = torch.squeeze(results[-1]).cpu().numpy()
 
         results_all = torch.zeros((len(results), 1, H, W))
         for i in range(len(results)):
           results_all[i, 0, :, :] = results[i]
+          # results_all = torchvision.transforms.functional.invert(results_all)
 
+        class_path = os.path.join(args.savedir, 'eval_results', class_image[0])
+        if not os.path.exists(class_path):
+            os.makedirs(class_path)
+        
         torchvision.utils.save_image(1-results_all, 
                 os.path.join(img_dir, "%s.jpg" % img_name))
         sio.savemat(os.path.join(mat_dir, '%s.mat' % img_name), {'img': result})
         result = Image.fromarray((result * 255).astype(np.uint8))
-        result.save(os.path.join(img_dir, "%s.png" % img_name))
+        result.save(os.path.join(class_path, "%s.png" % img_name))
         runinfo = "Running test [%d/%d]" % (idx + 1, len(test_loader))
         print(runinfo)
         running_file.write('%s\n' % runinfo)
